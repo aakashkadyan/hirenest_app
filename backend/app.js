@@ -17,9 +17,25 @@ const JobSeekerRoute = require("./routes/jobSeekerRoute");
 const emailNotification = require("./routes/emailNotification");
 const pino = require("pino");
 dotenv.config();
-
 // Initialize app
 const app = express();
+// ✅ CORS Configuration - Must be first
+const corsOptions = {
+  origin: [
+    "https://hirenest-app.vercel.app",
+    "https://hirenest-app-mb8j.vercel.app",
+    "http://localhost:5173",
+    "http://localhost:3000",
+    process.env.FRONTEND_URL
+  ].filter(Boolean),  
+  credentials: true,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+  allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+  exposedHeaders: ["Content-Length", "X-Foo", "X-Bar"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 const httpLogger = pinoHttp({
   logger: pino({
@@ -36,25 +52,6 @@ const httpLogger = pinoHttp({
 });
 app.use(httpLogger);
 
-
-// ✅ CORS Configuration
-const corsOptions = {
-  origin: [
-    "https://hirenest-app.vercel.app",
-    "https://hirenest-app-mb8j.vercel.app",
-    "http://localhost:5173",
-    "http://localhost:3000",
-    process.env.FRONTEND_URL
-  ].filter(Boolean),  
-  credentials: true,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
-
-app.use(cors(corsOptions));
-
-// Handle preflight requests
-app.options("*", cors(corsOptions));
 
 app.get("/", (req, res) => {
   // Add a log here to easily test if logging is working
