@@ -30,7 +30,7 @@ const CareerPage = ()=> {
               <div className="pt-4">
                 <Link to="/contact">
                   <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-300 shadow-md mr-4">
-                    Contact Us
+                    Contact
                   </button>
                 </Link>
                 <Link to="/">

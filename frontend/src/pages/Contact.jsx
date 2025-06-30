@@ -54,7 +54,7 @@ const Contact = () => {
       <Header />
       <div className="py-12 px-4 md:px-16 bg-gray-50 min-h-screen">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-blue-700 mb-8">Contact Us</h1>
+          <h1 className="text-4xl font-bold text-blue-700 mb-8">Contact</h1>
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Contact Form */}

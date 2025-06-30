@@ -27,9 +27,9 @@ const Header = () => {
      
       <nav className="flex space-x-6">
         <Link to="/" className="hover:text-[#146edb] hover:scale-105 text-lg font-semibold transition-all duration-200">Home</Link>
-        <Link to="/about" className="hover:text-[#146edb] hover:scale-105 text-lg font-semibold transition-all duration-200">About Us</Link>
+                        <Link to="/about" className="hover:text-[#146edb] hover:scale-105 text-lg font-semibold transition-all duration-200">About</Link>
         <Link to="/career" className="hover:text-[#146edb] hover:scale-105 text-lg font-semibold transition-all duration-200">Career</Link>
-        <Link to="/contact" className="hover:text-[#146edb] hover:scale-105 text-lg font-semibold transition-all duration-200">Contact Us</Link>
+                        <Link to="/contact" className="hover:text-[#146edb] hover:scale-105 text-lg font-semibold transition-all duration-200">Contact</Link>
       </nav>
       
       {isLoggedIn ? (
