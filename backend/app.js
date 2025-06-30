@@ -1,12 +1,12 @@
 const express = require("express");
-const dotenv = require("dotenv").config();
+const dotenv = require("dotenv")
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const connectDB = require("./config/db");
 const User = require("./models/User");
+const pinoHttp = require("pino-http");
+const logger = require("./utils/logger");
 const path = require("path");
-
-
 const { loginRouter } = require("./routes/login");
 const signUpRouter = require("./routes/signup");
 const jobRoute = require("./routes/jobRoute");
@@ -15,15 +15,31 @@ const employerprofileRoute = require("./routes/employerprofileRoute");
 const recommendationRoute = require("./routes/recommendationRoute");
 const JobSeekerRoute = require("./routes/jobSeekerRoute");
 const emailNotification = require("./routes/emailNotification");
-
+const pino = require("pino");
 dotenv.config();
 
 // Initialize app
 const app = express();
 
+const httpLogger = pinoHttp({
+  logger: pino({
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'SYS:yyyy-mm-dd HH:MM:ss',
+        ignore: 'pid,hostname,req,res,responseTime',
+        messageFormat: 'Method: {req.method} - URL: {req.url} - Status: {res.statusCode} - Time: {responseTime}ms'
+      }
+    }
+  })
+});
+app.use(httpLogger);
+
+
 // ✅ CORS Configuration
 const corsOptions = {
-  origin: "https://hirenest-app-frontend.vercel.app" || process.env.FRONTEND_URL, 
+  origin: "https://hirenest-app.vercel.app" || process.env.FRONTEND_URL,  
   credentials: true,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -36,7 +52,7 @@ app.options("*", cors(corsOptions));
 
 app.get("/", (req, res) => {
   // Add a log here to easily test if logging is working
-  console.log("Root endpoint hit successfully.");
+  req.log.info("Root endpoint hit successfully.");
   res.send(`
     <html>
     <head>
@@ -76,13 +92,13 @@ app.use("/api", loginRouter);
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error("Error:", err.stack);
+  req.logger.error("Error:", err.stack);
   res.status(500).send("Something broke!");
 });
 
 // 404 handler
 app.use((req, res) => {
-  console.log("404 - Not Found:", req.url);
+  req.log.error("404 - Not Found:", req.url);
   res.status(404).send("Page not found");
 });
 
@@ -90,7 +106,7 @@ app.use((req, res) => {
 if (process.env.VERCEL) {
   // For Vercel: Connect immediately, don't wait (Mongoose buffers operations)
   connectDB().catch(err => {
-    console.error("Database connection failed:", err);
+    logger.error("Database connection failed:", err);
   });
 } else {
   // For local development: Start server and connect to database
@@ -98,29 +114,29 @@ if (process.env.VERCEL) {
     try {
       // Connect to database first in local environment
       await connectDB();
-      console.log("Database connected successfully");
+      logger.info("Database connected successfully");
 
       const PORT = process.env.PORT || 5002;
       const server = app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-        console.log(`Base URL: ${process.env.BASE_URL || `http://localhost:${PORT}`}`);
+        logger.info(`Server running on port ${PORT}`);
+        logger.info(`Base URL: ${process.env.BASE_URL || `http://localhost:${PORT}`}`);
       });
 
       // Handle server errors
       server.on("error", (err) => {
         if (err.code === "EADDRINUSE") {
-          console.error(`Port ${PORT} is already in use. Trying another port...`);
+          logger.error(`Port ${PORT} is already in use. Trying another port...`);
           const newPort = PORT + 1;
           app.listen(newPort, () => {
-            console.log(`Server running on port ${newPort} (fallback)`);
+            logger.info(`Server running on port ${newPort} (fallback)`);
           });
         } else {
-          console.error("Server error:", err);
+          logger.error("Server error:", err);
         }
       });
 
     } catch (error) {
-      console.error("Failed to start server:", error);
+      logger.error("Failed to start server:", error);
       process.exit(1);
     }
   };

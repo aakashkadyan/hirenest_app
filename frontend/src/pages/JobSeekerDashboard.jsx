@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Briefcase, Clock, Star, Bookmark } from 'lucide-react';
 import ReadMore from '../components/ReadMore';
 import ReactPaginate from 'react-paginate';
 import UserProfile from '../components/UserProfile';
+import ProfilePicture from '../components/ProfilePicture';
 
 const JobSeekerDashboard = () => {
   const userName = localStorage.getItem('userName');
@@ -35,10 +37,30 @@ const JobSeekerDashboard = () => {
   };
 
   const tabs = [
-    { id: 'apply-jobs', label: 'Apply for Jobs →' },
-    { id: 'past-applications', label: 'Past Applications →' },
-    { id: 'recommendations', label: 'Recommendations →' },
-    { id: 'saved-jobs', label: 'Saved Jobs →' },
+    { 
+      id: 'apply-jobs', 
+      label: 'Apply for Jobs', 
+      icon: Briefcase,
+      color: 'text-blue-600'
+    },
+    { 
+      id: 'past-applications', 
+      label: 'Past Applications', 
+      icon: Clock,
+      color: 'text-green-600'
+    },
+    { 
+      id: 'recommendations', 
+      label: 'Recommendations', 
+      icon: Star,
+      color: 'text-yellow-600'
+    },
+    { 
+      id: 'saved-jobs', 
+      label: 'Saved Jobs', 
+      icon: Bookmark,
+      color: 'text-purple-600'
+    },
   ];
 
   // Helper function to get filtered jobs (excluding already applied and saved jobs)
@@ -333,6 +355,13 @@ const JobSeekerDashboard = () => {
       <main className="grid grid-cols-12 gap-4 m-4">
         {/* Sidebar */}
         <aside className="col-span-3 bg-white p-6 rounded shadow">
+          {/* Welcome Section with Profile Picture */}
+          <div className="text-center mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+            <ProfilePicture size="xl" className="mx-auto mb-3" showBorder={true} />
+            <h3 className="font-semibold text-gray-800">Welcome back!</h3>
+            <p className="text-sm text-gray-600 capitalize">{userName}</p>
+          </div>
+
           <h2 className="text-lg font-bold text-blue-600 mb-4">Dashboard</h2>
           
           {/* Profile Status Check */}
@@ -353,20 +382,31 @@ const JobSeekerDashboard = () => {
           <nav className="space-y-2">
             {tabs.map((tab) => {
               const count = tabCounts[tab.id] || 0;
+              const IconComponent = tab.icon;
 
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex justify-between items-center text-left px-3 py-2 rounded ${
+                  className={`w-full flex justify-between items-center text-left px-4 py-3 rounded-lg transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'bg-blue-100 text-blue-700 font-semibold'
-                      : 'hover:bg-gray-100'
+                      ? 'bg-blue-100 text-blue-700 font-semibold shadow-md border-l-4 border-blue-500'
+                      : 'hover:bg-gray-50 hover:shadow-sm'
                   }`}
                 >
-                  <span>{tab.label}</span>
+                  <div className="flex items-center space-x-3">
+                    <IconComponent 
+                      size={20} 
+                      className={`${activeTab === tab.id ? 'text-blue-600' : tab.color}`}
+                    />
+                    <span className="font-medium">{tab.label}</span>
+                  </div>
                   {(tab.id === 'apply-jobs' || tab.id === 'past-applications' || tab.id === 'saved-jobs') && (
-                    <span className="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                      activeTab === tab.id 
+                        ? 'bg-blue-500 text-white' 
+                        : 'bg-gray-200 text-gray-700'
+                    }`}>
                       {count}
                     </span>
                   )}

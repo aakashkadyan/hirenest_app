@@ -1,8 +1,34 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('userRole');
+    
+    if (token && userRole) {
+      // Redirect to appropriate dashboard based on user role
+      if (userRole === 'jobseeker') {
+        navigate('/jobseekerdashboard', { replace: true });
+      } else if (userRole === 'employer') {
+        navigate('/employerdashboard', { replace: true });
+      }
+    }
+  }, [navigate]);
+
+  // Only render the public home page for non-authenticated users
+  const token = localStorage.getItem('token');
+  
+  // Show loading or return null while checking authentication
+  if (token) {
+    return null; // This prevents flash of home page before redirect
+  }
+
   return (
     <div>
       <Header />  
@@ -31,8 +57,26 @@ const Home = () => {
         </div>
       </section>
 
-      
-    </div>
+      {/* Call to Action Section */}
+      <section className="text-center">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Ready to Get Started?</h2>
+        <p className="text-lg mb-6">Join thousands of job seekers and employers who trust HireNest</p>
+        <div className="flex justify-center space-x-4">
+          <button 
+            onClick={() => navigate('/signup')}
+            className="bg-blue-600 text-white font-semibold px-3 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            Sign Up Now
+          </button>
+          <button 
+            onClick={() => navigate('/login')}
+            className="bg-white text-blue-600 font-semibold px-6 py-3 rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-colors duration-200"
+          >
+            Login
+          </button>
+        </div>
+      </section>
+      </div>
       <Footer />
     </div>
   )

@@ -1,0 +1,245 @@
+# =============================================================================
+# HIRENEST PROJECT - GIT IGNORE FILE
+# =============================================================================
+
+# =============================================================================
+# NODE.JS & NPM
+# =============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.yarn-integrity
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# =============================================================================
+# ENVIRONMENT VARIABLES & SECRETS
+# =============================================================================
+.env
+.env.*
+!.env.example
+.env.local
+.env.development
+.env.test
+.env.production
+
+# =============================================================================
+# LOGS
+# =============================================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+app.log
+error.log
+combined.log
+access.log
+
+# =============================================================================
+# BUILD OUTPUTS
+# =============================================================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.vite/
+*.tsbuildinfo
+
+# =============================================================================
+# FRONTEND SPECIFIC (React/Vite)
+# =============================================================================
+# Vite
+.vite/
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# React
+.react/
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+.nyc_output/
+
+# =============================================================================
+# BACKEND SPECIFIC (Node.js/Express)
+# =============================================================================
+# Uploads (user uploaded files)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# =============================================================================
+# DATABASES
+# =============================================================================
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# =============================================================================
+# IDE & EDITOR FILES
+# =============================================================================
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# JetBrains IDEs
+.idea/
+*.swp
+*.swo
+*~
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*.swn
+*.swm
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# =============================================================================
+# OPERATING SYSTEM FILES
+# =============================================================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# DOCKER
+# =============================================================================
+.docker/
+*.dockerignore
+
+# =============================================================================
+# TEMPORARY FILES
+# =============================================================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.rej
+*.patch
+
+# =============================================================================
+# RUNTIME FILES
+# =============================================================================
+pids/
+*.pid
+*.seed
+*.pid.lock
+.lock-wscript
+
+# =============================================================================
+# TESTING
+# =============================================================================
+.nyc_output/
+coverage/
+*.lcov
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+
+# =============================================================================
+# DOCUMENTATION
+# =============================================================================
+docs/_build/
+.docusaurus/
+
+# =============================================================================
+# PACKAGE MANAGERS
+# =============================================================================
+# Yarn Plug'n'Play
+.pnp/
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# =============================================================================
+# SECURITY & CERTIFICATES
+# =============================================================================
+*.pem
+*.key
+*.crt
+*.csr
+
+# =============================================================================
+# ANALYTICS & MONITORING
+# =============================================================================
+.vercel/
+.netlify/
+.firebase/
+
+# =============================================================================
+# PROJECT SPECIFIC
+# =============================================================================
+# HireNest specific files
+dev-setup.log
+setup.log
+
+# Backup files
+*.backup
+*.bak
+
+# =============================================================================
+# IGNORE PATTERNS (KEEP AT END)
+# =============================================================================
+# Ignore all files in certain directories but keep the directories
+# Example: logs/* but keep logs/.gitkeep 

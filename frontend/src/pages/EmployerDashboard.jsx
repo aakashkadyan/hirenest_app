@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Plus, Briefcase, Users } from 'lucide-react';
 import CitySelect from '../components/CitySelect';
 import JobTitleSelect from '../components/JobTitleSelect';
 import AutoSuggestInput from '../components/AutoSuggestInput';
@@ -9,6 +10,7 @@ import ReadMore from '../components/ReadMore';
 import { toast } from 'react-toastify';
 import Pagination from '../components/Pagination';
 import UserProfile from '../components/UserProfile';
+import ProfilePicture from '../components/ProfilePicture';
 
 
 const EmployerDashboard = () => {
@@ -422,29 +424,20 @@ const EmployerDashboard = () => {
     { 
       id: 'post-jobs', 
       label: 'Post Jobs', 
-      icon: (
-        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-        </svg>
-      )
+      icon: Plus,
+      color: 'text-green-600'
     },
     { 
       id: 'posted-jobs', 
       label: 'Posted Jobs', 
-      icon: (
-        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
-        </svg>
-      )
+      icon: Briefcase,
+      color: 'text-blue-600'
     },
     { 
       id: 'applications', 
       label: 'Applications', 
-      icon: (
-        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-      )
+      icon: Users,
+      color: 'text-purple-600'
     },
   ];
 
@@ -461,6 +454,13 @@ const EmployerDashboard = () => {
 
       <main className="grid grid-cols-12 gap-4 m-4">
         <aside className="col-span-3 bg-white p-4 rounded shadow h-fit">
+          {/* Welcome Section with Profile Picture */}
+          <div className="text-center mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+            <ProfilePicture size="xl" className="mx-auto mb-3" showBorder={true} />
+            <h3 className="font-semibold text-gray-800">Welcome back!</h3>
+            <p className="text-sm text-gray-600 capitalize">{userName}</p>
+          </div>
+
           {/* Company Profile Status */}
           <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <h3 className="text-sm font-semibold text-blue-800 mb-2">Company Profile</h3>
@@ -499,21 +499,30 @@ const EmployerDashboard = () => {
             )}
           </div>
 
-          <nav className="flex flex-col space-y-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center text-left px-3 py-2 rounded ${
-                  activeTab === tab.id
-                    ? 'bg-blue-100 text-blue-700 font-semibold'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                {tab.icon}
-                {tab.label}
-              </button>
-            ))}
+          <nav className="space-y-2">
+            {tabs.map((tab) => {
+              const IconComponent = tab.icon;
+              
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center text-left px-4 py-3 rounded-lg transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? 'bg-blue-100 text-blue-700 font-semibold shadow-md border-l-4 border-blue-500'
+                      : 'hover:bg-gray-50 hover:shadow-sm'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <IconComponent 
+                      size={20} 
+                      className={`${activeTab === tab.id ? 'text-blue-600' : tab.color}`}
+                    />
+                    <span className="font-medium">{tab.label}</span>
+                  </div>
+                </button>
+              );
+            })}
           </nav>
         </aside>
 

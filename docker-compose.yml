@@ -2,19 +2,99 @@ version: '3.8'
 
 services:
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: hirenest-backend
+    restart: unless-stopped
+    
+    # Environment configuration
     env_file:
       - ./backend/.env
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true  # For file watching in Docker
+    
+    # Port mapping
     ports:
       - "5002:5002"
-    restart: unless-stopped
+    
+    # Volume mounts
+    volumes:
+      # Bind mount source code for development
+      - ./backend:/app
+      # Preserve node_modules in container (anonymous volume)
+      - /app/node_modules
+      # Logs volume for persistent logging
+      - backend_logs:/app/logs
+      # Uploads volume for file persistence
+      - ./backend/uploads:/app/uploads
+    
+    # Networks
+    networks:
+      - hirenest-network
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: hirenest-frontend
+    restart: unless-stopped
+    
+    # Environment configuration
     env_file:
       - ./frontend/.env
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true  # For file watching in Docker
+      - VITE_BACKEND_URL=http://backend:5002
+    
+    # Port mapping
     ports:
       - "5173:5173"
-    restart: unless-stopped
+    
+    # Volume mounts
+    volumes:
+      # Bind mount source code for development
+      - ./frontend:/app
+      # Preserve node_modules in container (anonymous volume)
+      - /app/node_modules
+      # Vite cache
+      - frontend_cache:/app/.vite
+    
+    # Networks
+    networks:
+      - hirenest-network
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # Dependency
+    depends_on:
+      - backend
+
+# Networks
+networks:
+  hirenest-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  # Application volumes
+  backend_logs:
+    driver: local
+  frontend_cache:
+    driver: local

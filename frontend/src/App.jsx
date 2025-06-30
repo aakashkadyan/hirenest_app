@@ -15,7 +15,7 @@ import JobSeekerForm from './pages/JobSeekerForm.jsx'
 import EmployerProfileForm from './pages/EmployerProfileForm.jsx'
 import CareerPage from './pages/CareerPage'
 import JobDetails from './pages/JobDetails'
-import { BrowserRouter as Router,Routes, Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 
 
 
