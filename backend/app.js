@@ -22,11 +22,7 @@ const app = express();
 // ✅ CORS Configuration - Must be first
 const corsOptions = {
   origin: [
-    "https://hirenest-app.vercel.app",
-    "https://hirenest-app-mb8j.vercel.app",
-    "http://localhost:5173",
-    "http://localhost:3000",
-    process.env.FRONTEND_URL
+    "https://hirenest-app.vercel.app" || process.env.FRONTEND_URL,
   ].filter(Boolean),  
   credentials: true,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
