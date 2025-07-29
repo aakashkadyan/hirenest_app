@@ -26,9 +26,8 @@ const applicationSchema = new mongoose.Schema({
     }
   },
   resume: {
-    fileId: String,
-    webViewLink: String,
-    fileName: String
+    type: String,
+    required: false
   },
   coverLetter: {
     type: String,

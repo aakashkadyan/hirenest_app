@@ -140,7 +140,7 @@ const JobSeekerDashboard = () => {
     // Create a modal or prompt for quick application
     const resumeFile = document.createElement('input');
     resumeFile.type = 'file';
-    resumeFile.accept = '.pdf,.doc,.docx';
+    resumeFile.accept = '.pdf';
     resumeFile.style.display = 'none';
     document.body.appendChild(resumeFile);
 

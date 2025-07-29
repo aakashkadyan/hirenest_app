@@ -312,9 +312,9 @@ const EmployerDashboard = () => {
   const handleViewResume = async (application) => {
     try {
       // First check if there's an uploaded resume file
-      if (application.resume && application.resume.webViewLink) {
-        console.log('Opening uploaded resume:', application.resume.webViewLink);
-        window.open(application.resume.webViewLink, '_blank');
+      if (application.resume) {
+        console.log('Opening uploaded resume:', application.resume);
+        window.open(application.resume, '_blank');
         return;
       }
 
@@ -504,15 +504,15 @@ const EmployerDashboard = () => {
               const IconComponent = tab.icon;
               
               return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center text-left px-4 py-3 rounded-lg transition-all duration-200 ${
-                    activeTab === tab.id
+                  activeTab === tab.id
                       ? 'bg-blue-100 text-blue-700 font-semibold shadow-md border-l-4 border-blue-500'
                       : 'hover:bg-gray-50 hover:shadow-sm'
-                  }`}
-                >
+                }`}
+              >
                   <div className="flex items-center space-x-3">
                     <IconComponent 
                       size={20} 
@@ -520,7 +520,7 @@ const EmployerDashboard = () => {
                     />
                     <span className="font-medium">{tab.label}</span>
                   </div>
-                </button>
+              </button>
               );
             })}
           </nav>
@@ -806,13 +806,13 @@ const EmployerDashboard = () => {
 
               {/* Resume Status */}
               <div className="mb-2">
-                {app.resume && app.resume.webViewLink ? (
+                {app.resume ? (
                   <div className="flex items-center space-x-2">
                     <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     <span className="text-sm text-green-700 font-medium">
-                      Resume uploaded: {app.resume.fileName || 'Resume.pdf'}
+                      Resume uploaded: Resume.pdf
                     </span>
                   </div>
                 ) : (
@@ -883,15 +883,15 @@ const EmployerDashboard = () => {
                 <button
                   onClick={() => handleViewResume(app)}
                   className={`px-3 py-1 rounded text-sm text-white ${
-                    (app.applicationMethod === 'quick-apply' && (!app.resume || !app.resume.webViewLink))
+                    (app.applicationMethod === 'quick-apply' && !app.resume)
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-blue-500 hover:bg-blue-600'
                   }`}
-                  disabled={app.applicationMethod === 'quick-apply' && (!app.resume || !app.resume.webViewLink)}
+                  disabled={app.applicationMethod === 'quick-apply' && !app.resume}
                   title={
-                    (app.applicationMethod === 'quick-apply' && (!app.resume || !app.resume.webViewLink))
+                    (app.applicationMethod === 'quick-apply' && !app.resume)
                       ? 'No resume file available for this quick application'
-                      : app.resume && app.resume.webViewLink
+                      : app.resume
                         ? 'View uploaded resume file'
                         : 'Generate resume from profile details'
                   }

@@ -15,14 +15,16 @@ const connectDB = async () => {
   try {
     // Use mongoose for the main connection with more robust options
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 60000, // Increased timeout for server selection (60 seconds)
-      socketTimeoutMS: 120000,         // Increased socket timeout (2 minutes)
-      connectTimeoutMS: 60000,         // Connection timeout (60 seconds)
+      serverSelectionTimeoutMS: 120000, // Increased timeout for server selection (2 minutes)
+      socketTimeoutMS: 180000,         // Increased socket timeout (3 minutes)
+      connectTimeoutMS: 120000,        // Connection timeout (2 minutes)
       family: 4,                       // Force IPv4
       maxPoolSize: 10,                 // Connection pool size
       minPoolSize: 5,                  // Minimum connections maintained
       retryWrites: true,               // Retry write operations if they fail
-      heartbeatFrequencyMS: 5000,      // Check connection health more frequently
+      heartbeatFrequencyMS: 10000,     // Check connection health less frequently
+      retryReads: true,                // Retry read operations if they fail
+      maxIdleTimeMS: 30000,            // Close connections after 30 seconds of inactivity
     });
     
     console.log(`MongoDB Connected to: ${conn.connection.host}, Database: ${conn.connection.name}`);

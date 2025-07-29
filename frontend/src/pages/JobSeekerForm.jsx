@@ -36,6 +36,7 @@ const JobSeekerForm = () => {
           const data = await res.json();
           setFormData(prev => ({
             ...prev,
+            _id: data._id, // Add the profile ID
             bio: data.bio || '',
             skills: data.skills || [],
             experience: data.experience?.length ? data.experience : prev.experience,
@@ -393,7 +394,7 @@ const JobSeekerForm = () => {
             <input
               id="resume-upload"
               type="file"
-              accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              accept="application/pdf"
               onChange={handleResumeUpload}
               className="hidden"
             />
@@ -401,7 +402,7 @@ const JobSeekerForm = () => {
               <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" /></svg>
               <span>{formData.resumeFileName || 'Upload or drag and drop'}</span>
             </label>
-            <span className="block text-xs text-gray-500 mt-1">Use a PDF, doc, or docx file – make sure it's 2MB or less</span>
+            <span className="block text-xs text-gray-500 mt-1">Use a PDF file only – make sure it's 5MB or less</span>
           </div>
         </div>
 

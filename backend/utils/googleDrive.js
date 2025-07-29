@@ -29,7 +29,7 @@ if (privateKey.includes('\\n')) {
   privateKey = privateKey.replace(/\\n/g, '\n');
 }
 
-console.log('✅ Google Drive API configured successfully');
+// Google Drive API configured (legacy - now using AWS S3)
 
 // Function to upload file to Google Drive with proper error handling
 const uploadToGoogleDrive = async (file) => {

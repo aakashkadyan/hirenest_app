@@ -71,14 +71,14 @@ const UserProfile = () => {
     <div className="relative inline-block text-left ml-200">
       <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 hover:rounded-lg p-2 transition-all duration-200 ease-in-out hover:shadow-md" onClick={() => setOpen(!open)}>
         <div className="relative">
-          <img
+        <img
             src={profilePicture}
-            alt="User Avatar"
+          alt="User Avatar"
             className="w-8 h-8 rounded-full hover:scale-105 transition-transform duration-200 object-cover"
             onError={(e) => {
               e.target.src = '/images/avatar.png';
             }}
-          />
+        />
         </div>
         <ChevronDown size={18} className="hover:text-blue-600 transition-colors duration-200" />
       </div>
@@ -87,9 +87,9 @@ const UserProfile = () => {
         <div className="absolute right-0 mt-2 w-64 bg-white border rounded-xl shadow-lg z-50 hover:shadow-xl transition-shadow duration-200">
           <div className="flex items-center gap-3 px-4 py-3 border-b hover:bg-gray-50 transition-colors duration-150">
             <div className="relative">
-              <img
+            <img
                 src={profilePicture}
-                alt="User Avatar"
+              alt="User Avatar"
                 className="w-10 h-10 rounded-full object-cover"
                 onError={(e) => {
                   e.target.src = '/images/avatar.png';

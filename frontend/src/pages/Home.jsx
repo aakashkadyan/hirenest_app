@@ -64,7 +64,7 @@ const Home = () => {
         <div className="flex justify-center space-x-4">
           <button 
             onClick={() => navigate('/signup')}
-            className="bg-blue-600 text-white font-semibold px-3 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            className="bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200"
           >
             Sign Up Now
           </button>
@@ -76,7 +76,7 @@ const Home = () => {
           </button>
         </div>
       </section>
-      </div>
+    </div>
       <Footer />
     </div>
   )
