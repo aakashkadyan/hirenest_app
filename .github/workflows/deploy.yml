@@ -145,7 +145,7 @@ jobs:
 
       - name: Update ECS task definition
         id: task-def-backend
-        uses: aws-actions/amazon-ecs-render-task-definition@v2
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition-backend.json
           container-name: hirenest-backend
@@ -195,7 +195,7 @@ jobs:
 
       - name: Update ECS task definition
         id: task-def-frontend
-        uses: aws-actions/amazon-ecs-render-task-definition@v2
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition-frontend.json
           container-name: hirenest-frontend
