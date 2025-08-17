@@ -74,6 +74,8 @@ services:
     # Networks
     networks:
       - hirenest-network
+      
+    command: npm run dev -- --host 0.0.0.0
     
     # Health check
     healthcheck:
