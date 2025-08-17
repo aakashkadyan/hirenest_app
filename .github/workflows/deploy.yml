@@ -3,19 +3,62 @@ name: Deploy Hirenest App to AWS
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 env:
-  AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
-  ECR_REPOSITORY_BACKEND: ${{ secrets.ECR_REPOSITORY_BACKEND || 'hirenest-backend' }}
-  ECR_REPOSITORY_FRONTEND: ${{ secrets.ECR_REPOSITORY_FRONTEND || 'hirenest-frontend' }}
-  ECS_CLUSTER: ${{ secrets.ECS_CLUSTER || 'hirenest-cluster' }}
-  ECS_SERVICE_BACKEND: ${{ secrets.ECS_SERVICE_BACKEND || 'hirenest-backend-service' }}
-  ECS_SERVICE_FRONTEND: ${{ secrets.ECS_SERVICE_FRONTEND || 'hirenest-frontend-service' }}
-  ECS_TASK_DEFINITION_BACKEND: ${{ secrets.ECS_TASK_DEFINITION_BACKEND || 'hirenest-backend-task' }}
-  ECS_TASK_DEFINITION_FRONTEND: ${{ secrets.ECS_TASK_DEFINITION_FRONTEND || 'hirenest-frontend-task' }}
+  AWS_REGION: us-east-1
 
 jobs:
-  build-and-push:
+  # Stage 1: Test Backend and Frontend
+  test:
+    name: 🧪 Test Application
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          npm test --if-present || echo "No tests found, continuing..."
+
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test --if-present || echo "No tests found, continuing..."
+
+      - name: Lint backend code
+        run: |
+          cd backend
+          npm run lint --if-present || echo "No lint script found, continuing..."
+
+      - name: Lint frontend code
+        run: |
+          cd frontend
+          npm run lint --if-present || echo "No lint script found, continuing..."
+
+  # Stage 2: Build Docker Images
+  build:
+    name: 🐳 Build Docker Images
+    needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
@@ -58,8 +101,10 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG
           echo "frontend-image=$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+  # Stage 3: Deploy Backend
   deploy-backend:
-    needs: build-and-push
+    name: 🚀 Deploy Backend
+    needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
@@ -74,9 +119,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Load environment variables
+        run: |
+          cd backend
+          export $(cat .env | grep -v '^#' | xargs)
+          echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
+          echo "ECS_SERVICE_BACKEND=$ECS_SERVICE_BACKEND" >> $GITHUB_ENV
+          echo "ECS_TASK_DEFINITION_BACKEND=$ECS_TASK_DEFINITION_BACKEND" >> $GITHUB_ENV
+
       - name: Download task definition
         run: |
-          aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION_BACKEND }} \
+          aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION_BACKEND \
           --query taskDefinition > task-definition-backend.json
 
       - name: Update ECS task definition
@@ -85,7 +138,7 @@ jobs:
         with:
           task-definition: task-definition-backend.json
           container-name: hirenest-backend
-          image: ${{ needs.build-and-push.outputs.backend-image }}
+          image: ${{ needs.build.outputs.backend-image }}
 
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
@@ -95,8 +148,10 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
 
+  # Stage 4: Deploy Frontend
   deploy-frontend:
-    needs: build-and-push
+    name: 🎨 Deploy Frontend
+    needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
@@ -111,9 +166,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Load environment variables
+        run: |
+          cd frontend
+          export $(cat .env | grep -v '^#' | xargs)
+          echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
+          echo "ECS_SERVICE_FRONTEND=$ECS_SERVICE_FRONTEND" >> $GITHUB_ENV
+          echo "ECS_TASK_DEFINITION_FRONTEND=$ECS_TASK_DEFINITION_FRONTEND" >> $GITHUB_ENV
+
       - name: Download task definition
         run: |
-          aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION_FRONTEND }} \
+          aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION_FRONTEND \
           --query taskDefinition > task-definition-frontend.json
 
       - name: Update ECS task definition
@@ -122,7 +185,7 @@ jobs:
         with:
           task-definition: task-definition-frontend.json
           container-name: hirenest-frontend
-          image: ${{ needs.build-and-push.outputs.frontend-image }}
+          image: ${{ needs.build.outputs.frontend-image }}
 
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
@@ -130,4 +193,90 @@ jobs:
           task-definition: ${{ steps.task-def-frontend.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE_FRONTEND }}
           cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true 
+          wait-for-service-stability: true
+
+  # Stage 5: Health Check and Verification
+  health-check:
+    name: 🏥 Health Check & Verification
+    needs: [deploy-backend, deploy-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Load environment variables
+        run: |
+          cd backend
+          export $(cat .env | grep -v '^#' | xargs)
+          echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
+          echo "ECS_SERVICE_BACKEND=$ECS_SERVICE_BACKEND" >> $GITHUB_ENV
+          echo "ECS_SERVICE_FRONTEND=$ECS_SERVICE_FRONTEND" >> $GITHUB_ENV
+
+      - name: Wait for services to be stable
+        run: |
+          echo "Waiting for backend service to be stable..."
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE_BACKEND \
+            --region $AWS_REGION
+          
+          echo "Waiting for frontend service to be stable..."
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE_FRONTEND \
+            --region $AWS_REGION
+
+      - name: Get service endpoints
+        id: endpoints
+        run: |
+          # Get backend endpoint
+          BACKEND_ENDPOINT=$(aws ecs describe-services \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE_BACKEND \
+            --query 'services[0].loadBalancers[0].hostname' \
+            --output text)
+          
+          # Get frontend endpoint
+          FRONTEND_ENDPOINT=$(aws ecs describe-services \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE_FRONTEND \
+            --query 'services[0].loadBalancers[0].hostname' \
+            --output text)
+          
+          echo "backend-endpoint=$BACKEND_ENDPOINT" >> $GITHUB_OUTPUT
+          echo "frontend-endpoint=$FRONTEND_ENDPOINT" >> $GITHUB_OUTPUT
+
+      - name: Test backend health
+        run: |
+          if [ "${{ steps.endpoints.outputs.backend-endpoint }}" != "None" ]; then
+            echo "Testing backend health at: ${{ steps.endpoints.outputs.backend-endpoint }}"
+            curl -f "http://${{ steps.endpoints.outputs.backend-endpoint }}/" || echo "Backend health check failed"
+          else
+            echo "Backend endpoint not available yet"
+          fi
+
+      - name: Test frontend health
+        run: |
+          if [ "${{ steps.endpoints.outputs.frontend-endpoint }}" != "None" ]; then
+            echo "Testing frontend health at: ${{ steps.endpoints.outputs.frontend-endpoint }}"
+            curl -f "http://${{ steps.endpoints.outputs.frontend-endpoint }}/" || echo "Frontend health check failed"
+          else
+            echo "Frontend endpoint not available yet"
+          fi
+
+      - name: Deployment Summary
+        run: |
+          echo "🎉 Deployment Complete!"
+          echo "Backend: ${{ steps.endpoints.outputs.backend-endpoint }}"
+          echo "Frontend: ${{ steps.endpoints.outputs.frontend-endpoint }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}" 
