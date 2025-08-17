@@ -91,11 +91,11 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           cd backend
-          # Load environment variables from .env file
-          export $(cat .env | grep -v '^#' | xargs)
-          docker build -f Dockerfile.prod -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
-          echo "backend-image=$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          # Set default ECR repository name if not in .env
+          ECR_REPO_NAME=${ECR_REPOSITORY_BACKEND:-hirenest-backend}
+          docker build -f Dockerfile.prod -t $ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG
+          echo "backend-image=$ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Build and push frontend image
         env:
@@ -103,11 +103,11 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           cd frontend
-          # Load environment variables from .env file
-          export $(cat .env | grep -v '^#' | xargs)
-          docker build -f Dockerfile.prod -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG
-          echo "frontend-image=$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          # Set default ECR repository name if not in .env
+          ECR_REPO_NAME=${ECR_REPOSITORY_FRONTEND:-hirenest-frontend}
+          docker build -f Dockerfile.prod -t $ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG
+          echo "frontend-image=$ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   # Stage 4: Deploy Backend
   deploy-backend:
@@ -130,7 +130,10 @@ jobs:
       - name: Load environment variables
         run: |
           cd backend
-          export $(cat .env | grep -v '^#' | xargs)
+          # Set default values if .env file doesn't exist or variables are missing
+          export ECS_CLUSTER=${ECS_CLUSTER:-hirenest-cluster}
+          export ECS_SERVICE_BACKEND=${ECS_SERVICE_BACKEND:-hirenest-backend-service}
+          export ECS_TASK_DEFINITION_BACKEND=${ECS_TASK_DEFINITION_BACKEND:-hirenest-backend-task}
           echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
           echo "ECS_SERVICE_BACKEND=$ECS_SERVICE_BACKEND" >> $GITHUB_ENV
           echo "ECS_TASK_DEFINITION_BACKEND=$ECS_TASK_DEFINITION_BACKEND" >> $GITHUB_ENV
@@ -177,7 +180,10 @@ jobs:
       - name: Load environment variables
         run: |
           cd frontend
-          export $(cat .env | grep -v '^#' | xargs)
+          # Set default values if .env file doesn't exist or variables are missing
+          export ECS_CLUSTER=${ECS_CLUSTER:-hirenest-cluster}
+          export ECS_SERVICE_FRONTEND=${ECS_SERVICE_FRONTEND:-hirenest-frontend-service}
+          export ECS_TASK_DEFINITION_FRONTEND=${ECS_TASK_DEFINITION_FRONTEND:-hirenest-frontend-task}
           echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
           echo "ECS_SERVICE_FRONTEND=$ECS_SERVICE_FRONTEND" >> $GITHUB_ENV
           echo "ECS_TASK_DEFINITION_FRONTEND=$ECS_TASK_DEFINITION_FRONTEND" >> $GITHUB_ENV
@@ -224,7 +230,10 @@ jobs:
       - name: Load environment variables
         run: |
           cd backend
-          export $(cat .env | grep -v '^#' | xargs)
+          # Set default values if .env file doesn't exist or variables are missing
+          export ECS_CLUSTER=${ECS_CLUSTER:-hirenest-cluster}
+          export ECS_SERVICE_BACKEND=${ECS_SERVICE_BACKEND:-hirenest-backend-service}
+          export ECS_SERVICE_FRONTEND=${ECS_SERVICE_FRONTEND:-hirenest-frontend-service}
           echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
           echo "ECS_SERVICE_BACKEND=$ECS_SERVICE_BACKEND" >> $GITHUB_ENV
           echo "ECS_SERVICE_FRONTEND=$ECS_SERVICE_FRONTEND" >> $GITHUB_ENV
