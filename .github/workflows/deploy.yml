@@ -10,9 +10,9 @@ env:
   AWS_REGION: us-east-1
 
 jobs:
-  # Stage 1: Test Backend and Frontend
-  test:
-    name: 🧪 Test Application
+  # Stage 1: Test Backend
+  test-backend:
+    name: Test Backend
     runs-on: ubuntu-latest
     
     steps:
@@ -23,42 +23,50 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Install backend dependencies
         run: |
           cd backend
-          npm ci
-
-      - name: Install frontend dependencies
-        run: |
-          cd frontend
-          npm ci
+          npm install
 
       - name: Run backend tests
         run: |
           cd backend
-          npm test --if-present || echo "No tests found, continuing..."
+          npm test
+
+  # Stage 2: Test Frontend
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
 
       - name: Run frontend tests
         run: |
           cd frontend
-          npm test --if-present || echo "No tests found, continuing..."
+          npm test
 
-      - name: Lint backend code
-        run: |
-          cd backend
-          npm run lint --if-present || echo "No lint script found, continuing..."
-
-      - name: Lint frontend code
+      - name: Build frontend
         run: |
           cd frontend
-          npm run lint --if-present || echo "No lint script found, continuing..."
+          npm run build
 
-  # Stage 2: Build Docker Images
+  # Stage 3: Build Docker Images
   build:
-    name: 🐳 Build Docker Images
-    needs: test
+    name: Build Docker Images
+    needs: [test-backend, test-frontend]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
@@ -101,9 +109,9 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG
           echo "frontend-image=$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-  # Stage 3: Deploy Backend
+  # Stage 4: Deploy Backend
   deploy-backend:
-    name: 🚀 Deploy Backend
+    name: Deploy Backend
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -148,9 +156,9 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
 
-  # Stage 4: Deploy Frontend
+  # Stage 5: Deploy Frontend
   deploy-frontend:
-    name: 🎨 Deploy Frontend
+    name: Deploy Frontend
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -195,9 +203,9 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
 
-  # Stage 5: Health Check and Verification
+  # Stage 6: Health Check and Verification
   health-check:
-    name: 🏥 Health Check & Verification
+    name: Health Check and Verification
     needs: [deploy-backend, deploy-frontend]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -275,7 +283,7 @@ jobs:
 
       - name: Deployment Summary
         run: |
-          echo "🎉 Deployment Complete!"
+          echo "Deployment Complete!"
           echo "Backend: ${{ steps.endpoints.outputs.backend-endpoint }}"
           echo "Frontend: ${{ steps.endpoints.outputs.frontend-endpoint }}"
           echo "Commit: ${{ github.sha }}"
