@@ -69,6 +69,9 @@ jobs:
     needs: [test-backend, test-frontend]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    outputs:
+      backend-image: ${{ steps.backend-build.outputs.image }}
+      frontend-image: ${{ steps.frontend-build.outputs.image }}
     
     steps:
       - name: Checkout code
@@ -86,6 +89,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and push backend image
+        id: backend-build
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
@@ -95,9 +99,10 @@ jobs:
           ECR_REPO_NAME=${ECR_REPOSITORY_BACKEND:-hirenest-backend}
           docker build -f Dockerfile.prod -t $ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG
-          echo "backend-image=$ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image=$ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Build and push frontend image
+        id: frontend-build
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
@@ -107,7 +112,7 @@ jobs:
           ECR_REPO_NAME=${ECR_REPOSITORY_FRONTEND:-hirenest-frontend}
           docker build -f Dockerfile.prod -t $ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG
-          echo "frontend-image=$ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image=$ECR_REGISTRY/$ECR_REPO_NAME:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   # Stage 4: Deploy Backend
   deploy-backend:
