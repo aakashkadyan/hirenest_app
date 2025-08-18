@@ -136,7 +136,7 @@ jobs:
         run: |
           cd backend
           # Set default values if .env file doesn't exist or variables are missing
-          export ECS_CLUSTER=${ECS_CLUSTER:-hirenest-cluster}
+          export ECS_CLUSTER=${ECS_CLUSTER:-hirenest-app-cluster}
           export ECS_SERVICE_BACKEND=${ECS_SERVICE_BACKEND:-hirenest-backend-service}
           export ECS_TASK_DEFINITION_BACKEND=${ECS_TASK_DEFINITION_BACKEND:-hirenest-backend-task}
           echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
@@ -186,7 +186,7 @@ jobs:
         run: |
           cd frontend
           # Set default values if .env file doesn't exist or variables are missing
-          export ECS_CLUSTER=${ECS_CLUSTER:-hirenest-cluster}
+          export ECS_CLUSTER=${ECS_CLUSTER:-hirenest-app-cluster}
           export ECS_SERVICE_FRONTEND=${ECS_SERVICE_FRONTEND:-hirenest-frontend-service}
           export ECS_TASK_DEFINITION_FRONTEND=${ECS_TASK_DEFINITION_FRONTEND:-hirenest-frontend-task}
           echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
@@ -236,7 +236,7 @@ jobs:
         run: |
           cd backend
           # Set default values if .env file doesn't exist or variables are missing
-          export ECS_CLUSTER=${ECS_CLUSTER:-hirenest-cluster}
+          export ECS_CLUSTER=${ECS_CLUSTER:-hirenest-app-cluster}
           export ECS_SERVICE_BACKEND=${ECS_SERVICE_BACKEND:-hirenest-backend-service}
           export ECS_SERVICE_FRONTEND=${ECS_SERVICE_FRONTEND:-hirenest-frontend-service}
           echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
