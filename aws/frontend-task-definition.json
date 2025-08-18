@@ -4,12 +4,11 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
-  "taskRoleArn": "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
+  "executionRoleArn": "arn:aws:iam::431522527733:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "name": "hirenest-frontend",
-      "image": "hirenest-frontend:latest",
+      "image": "431522527733.dkr.ecr.us-east-1.amazonaws.com/hirenest-frontend:latest",
       "portMappings": [
         {
           "containerPort": 3000,
@@ -21,22 +20,7 @@
           "name": "NODE_ENV",
           "value": "production"
         }
-      ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/hirenest-frontend",
-          "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "ecs"
-        }
-      },
-      "healthCheck": {
-        "command": ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"],
-        "interval": 30,
-        "timeout": 5,
-        "retries": 3,
-        "startPeriod": 60
-      }
+      ]
     }
   ]
 } 
