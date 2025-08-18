@@ -163,6 +163,7 @@ jobs:
           service: ${{ env.ECS_SERVICE_BACKEND }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+          wait-for-minutes: 20
 
   # Stage 5: Deploy Frontend
   deploy-frontend:
@@ -213,6 +214,7 @@ jobs:
           service: ${{ env.ECS_SERVICE_FRONTEND }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+          wait-for-minutes: 20
 
   # Stage 6: Health Check and Verification
   health-check:
